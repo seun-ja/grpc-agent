@@ -6,7 +6,7 @@
 
 ## Overview
 
-**grpc-agent** is a Rust library crate for building robust, extensible agents that communicate over gRPC. It supports multiple provider backends (like OpenAI and Ollama) and is structured for easy extension and error handling.
+**grpc-agent** is a Rust crate that lets you build resilient, extensible agents which talk to LLM services over gRPC. Leveraging the Rig framework, it supports multiple provider backends, currently OpenAI and Ollama, and is designed for straightforward extension and robust error handling.
 
 ---
 
