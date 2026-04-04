@@ -19,13 +19,8 @@ pub struct AgentServerBuilder<'a> {
 }
 
 impl<'a> AgentServerBuilder<'a> {
-    pub fn new(
-        port: u16,
-        provider: Providers,
-        system_message: &'a str,
-        model: &'a str,
-    ) -> Result<Self, Error> {
-        Ok(Self {
+    pub fn new(port: u16, provider: Providers, system_message: &'a str, model: &'a str) -> Self {
+        Self {
             port,
             provider,
             system_message,
@@ -33,7 +28,7 @@ impl<'a> AgentServerBuilder<'a> {
             api_key: None,
             temperature: None,
             max_tokens: None,
-        })
+        }
     }
 
     #[inline]
