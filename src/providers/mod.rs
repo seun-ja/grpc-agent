@@ -11,17 +11,13 @@ mod openai;
 #[async_trait::async_trait]
 pub trait CompletionProvider: Send + Sync {
     async fn chat(&self, prompt: &str) -> Result<String, Error>;
-    fn model(&self) -> &str;
-    fn api_key(&self) -> Option<&str>;
-    fn system_message(&self) -> Option<&str>;
-    fn temperature(&self) -> Option<f64>;
-    fn max_tokens(&self) -> Option<u64>;
-    fn provider(&self) -> Providers;
 }
 
 /// Supported AI providers for the agent server.
 pub enum Providers {
+    /// Ollama provider: local AI model inference.
     Ollama,
+    /// OpenAI provider: cloud-based AI model inference.
     OpenAI,
 }
 
@@ -48,7 +44,7 @@ impl From<&str> for Providers {
 }
 
 impl Providers {
-    pub fn init<T: Tool + 'static>(
+    pub(crate) fn init<T: Tool + 'static>(
         provider: Providers,
         model: &str,
         api_key: Option<&str>,
@@ -88,7 +84,7 @@ impl Providers {
         }
     }
 
-    pub fn init_with_schema<J: JsonSchema, T: Tool + 'static>(
+    pub(crate) fn init_with_schema<J: JsonSchema, T: Tool + 'static>(
         provider: Providers,
         model: &str,
         api_key: Option<&str>,

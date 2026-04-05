@@ -7,7 +7,7 @@ use rig::{
 };
 use schemars::JsonSchema;
 
-use crate::{Providers, error::Error, providers::CompletionProvider, tools::ToolWrapper};
+use crate::{error::Error, providers::CompletionProvider, tools::ToolWrapper};
 
 pub struct OllamaProvider {
     model: String,
@@ -92,24 +92,6 @@ impl CompletionProvider for OllamaAI {
     async fn chat(&self, prompt: &str) -> Result<String, Error> {
         let response = self.agent.prompt(prompt).await?;
         Ok(response)
-    }
-    fn model(&self) -> &str {
-        &self.agent.model.model
-    }
-    fn api_key(&self) -> Option<&str> {
-        None
-    }
-    fn system_message(&self) -> Option<&str> {
-        self.agent.preamble.as_deref()
-    }
-    fn temperature(&self) -> Option<f64> {
-        self.agent.temperature
-    }
-    fn max_tokens(&self) -> Option<u64> {
-        self.agent.max_tokens
-    }
-    fn provider(&self) -> Providers {
-        Providers::Ollama
     }
 }
 

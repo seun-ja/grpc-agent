@@ -23,8 +23,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ctx.deadline = Instant::now() + Duration::from_secs(120);
     let response = client
         .message(ctx, "what the price ticket to london".to_string())
-        .await?
-        .unwrap();
+        .await??;
 
     println!("Server response: {}", response);
 

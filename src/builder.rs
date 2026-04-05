@@ -9,6 +9,7 @@ use crate::{
     tools::{NoTool, ToolWrapper},
 };
 
+/// Builder for creating an [`AgentServer`].
 pub struct AgentServerBuilder<'a> {
     port: u16,
     provider: Providers,
@@ -20,6 +21,7 @@ pub struct AgentServerBuilder<'a> {
 }
 
 impl<'a> AgentServerBuilder<'a> {
+    /// Creates a new [`AgentServerBuilder`] with the given port, provider, system message, and model.
     pub fn new(port: u16, provider: Providers, system_message: &'a str, model: &'a str) -> Self {
         Self {
             port,
@@ -32,24 +34,28 @@ impl<'a> AgentServerBuilder<'a> {
         }
     }
 
+    /// Sets the API key for the provider.
     #[inline]
     pub fn api_key(mut self, api_key: &'a str) -> Self {
         self.api_key = Some(api_key);
         self
     }
 
+    /// Sets the temperature for the provider.
     #[inline]
     pub fn temperature(mut self, temperature: f64) -> Self {
         self.temperature = Some(temperature);
         self
     }
 
+    /// Sets the maximum number of tokens for the provider.
     #[inline]
     pub fn max_tokens(mut self, max_tokens: u64) -> Self {
         self.max_tokens = Some(max_tokens);
         self
     }
 
+    /// Builds the [`AgentServer`] with the given configuration.
     pub fn build(self) -> Result<AgentServer, Error> {
         let providers = Providers::init::<NoTool>(
             self.provider,
@@ -67,6 +73,7 @@ impl<'a> AgentServerBuilder<'a> {
         })
     }
 
+    /// Builds the [`AgentServer`] with the given configuration and schema.
     pub fn build_with_schema<J: JsonSchema>(self) -> Result<AgentServer, Error> {
         let providers = Providers::init_with_schema::<J, NoTool>(
             self.provider,
@@ -84,6 +91,7 @@ impl<'a> AgentServerBuilder<'a> {
         })
     }
 
+    /// Builds the [`AgentServer`] with the given configuration and tool.
     pub fn build_with_tool<T: Tool + 'static>(
         self,
         tool: ToolWrapper<T>,

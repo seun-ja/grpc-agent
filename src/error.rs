@@ -6,14 +6,19 @@ use thiserror::Error;
 /// Error type used throughout the crate.
 #[derive(Error, Debug)]
 pub enum Error {
+    /// Provider error: the provider returned an error response.
     #[error("provider error: {0}")]
     ProviderError(String),
+    /// Authentication error: the provider returned an authentication error.
     #[error("authentication error: {0}")]
     AuthenticationError(String),
+    /// Client error: the HTTP client returned an error.
     #[error("client error: {0}")]
     HttpError(#[from] rig::http_client::Error),
+    /// Prompt error: the prompt returned an error.
     #[error("prompt error: {0}")]
     PromptError(#[from] rig::completion::PromptError),
+    /// IO error: an I/O error occurred.
     #[error("io error: {0}")]
     Io(#[from] std::io::Error),
 }
@@ -21,8 +26,8 @@ pub enum Error {
 /// API error type used for provider-specific error responses.
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ApiError {
-    pub status: u16,
-    pub message: String,
+    status: u16,
+    message: String,
 }
 
 impl Display for ApiError {

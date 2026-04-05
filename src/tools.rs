@@ -19,15 +19,30 @@ impl<T: Tool + 'static> ToolWrapper<T> {
     /// impl Tool for MyTool {
     ///     const NAME: &'static str = "my_tool";
     ///     type Error = anyhow::Error;
-    ///     type Args = ();
-    ///     type Output = ();
+    ///     type Args = Input;
+    ///     type Output = u32;
     ///
     ///     async fn definition(&self, _prompt: String) -> rig::completion::ToolDefinition {
-    ///         unreachable!("MyTool should never be used");
+    ///         ToolDefinition {
+    ///             name: "get_ticket_price".to_string(),
+    ///             description: "Get the price of a return ticket to the destination city.".to_string(),
+    ///             parameters: serde_json::json!({
+    ///                 "type": "object",
+    ///                 "properties": {
+    ///                     "destination_city": {
+    ///                         "type": "string",
+    ///                         "description": "The destination city"
+    ///                     }
+    ///                 },
+    ///                 "required": ["destination_city"],
+    ///             }),
+    ///         }
     ///     }
     ///
     ///     async fn call(&self, _args: Self::Args) -> Result<Self::Output, Self::Error> {
-    ///         unreachable!("MyTool should never be used");
+    ///         println!("Tools called for {}", &args.destination_city);
+    ///         let result = Self::get_ticket_price(&args.destination_city)?;
+    ///         Ok(result)
     ///     }
     /// }
     ///

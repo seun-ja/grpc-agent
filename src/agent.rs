@@ -1,4 +1,7 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::{
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+    sync::Arc,
+};
 
 use futures::{StreamExt as _, TryStreamExt, future};
 use tarpc::{
@@ -10,8 +13,8 @@ use crate::{error::ApiError, error::Error, providers::CompletionProvider};
 
 #[derive(Clone)]
 pub struct AgentServer {
-    pub socket_addr: SocketAddr,
-    pub providers: Arc<Box<dyn CompletionProvider>>,
+    pub(crate) socket_addr: SocketAddr,
+    pub(crate) providers: Arc<Box<dyn CompletionProvider>>,
 }
 
 impl AgentServer {
@@ -28,7 +31,12 @@ impl AgentServer {
             .filter_map(|r| future::ready(r.ok()))
             .map(server::BaseChannel::with_defaults)
             // Limit channels to 1 per IP.
-            .max_channels_per_key(1, |t| t.transport().peer_addr().unwrap().ip())
+            .max_channels_per_key(1, |t| {
+                t.transport()
+                    .peer_addr()
+                    .map(|addr| addr.ip())
+                    .unwrap_or(IpAddr::V4(Ipv4Addr::UNSPECIFIED))
+            })
             .map(|channel| {
                 channel.execute(self.clone().serve()).for_each(|f| async {
                     tokio::spawn(f);
@@ -40,6 +48,17 @@ impl AgentServer {
             .await;
 
         Ok(())
+    }
+
+    #[cfg(test)]
+    pub(crate) fn _new(
+        socket_addr: SocketAddr,
+        providers: Arc<Box<dyn CompletionProvider>>,
+    ) -> Self {
+        Self {
+            socket_addr,
+            providers,
+        }
     }
 }
 
