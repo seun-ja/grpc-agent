@@ -21,5 +21,5 @@ pub(crate) fn decode_jwt(token: &str, hmac_secret: &str) -> Result<Claims, Error
 #[derive(Deserialize, Serialize)]
 pub(crate) struct Claims {
     pub prompt: String,
-    pub exp: usize,
+    pub exp: i64,
 }

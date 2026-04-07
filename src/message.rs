@@ -10,9 +10,11 @@ pub enum Message {
     Text(String),
     /// A structured message.
     Struct(Value),
-    /// An encrypted message that will be decrypted before being sent.
+    /// A JWT-backed message whose claims will be validated and whose prompt will be extracted
+    /// before being sent.
     ///
-    /// Note: It requires a JWT_SECRET environment variable to be set.
+    /// Note: This does not provide confidentiality by itself; it relies on `JWT_SECRET` to
+    /// validate/decode the token.
     Encrypted(String),
 }
 
@@ -32,10 +34,10 @@ impl TryFrom<Message> for String {
             Message::Encrypted(token) => {
                 let hmac_secret =
                     std::env::var("JWT_SECRET").map_err(|_| Error::NoJWTSecretFound)?;
-                let claims = decode_jwt(&token, &hmac_secret)
-                    .map_err(|e| Error::InvalidJWTCredentials(e.to_string()))?;
 
-                Ok(claims.prompt)
+                let prompt = decode_jwt(&token, &hmac_secret).map(|c| c.prompt)?;
+
+                Ok(prompt)
             }
         }
     }

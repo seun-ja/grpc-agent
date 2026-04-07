@@ -28,10 +28,6 @@
 //!    Ok(())
 //!}
 //!```
-//!
-//! ## Feature Flags
-//!
-//! * **`prompt_encryption`**: Enables prompt encryption for securely transmitting prompts over the network. It requires a JWT_SECRET environment variable to be set.
 
 mod agent;
 mod builder;

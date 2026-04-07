@@ -3,6 +3,40 @@ use crate::jwt::{Claims, decode_jwt};
 use crate::message::Message;
 use std::env;
 
+/// Guard to ensure JWT_SECRET is removed from the environment after test, even on panic.
+struct JwtSecretGuard;
+
+impl JwtSecretGuard {
+    fn set(secret: &str) -> Self {
+        unsafe { env::set_var("JWT_SECRET", secret) };
+        JwtSecretGuard
+    }
+}
+
+impl Drop for JwtSecretGuard {
+    fn drop(&mut self) {
+        unsafe { env::remove_var("JWT_SECRET") };
+    }
+}
+
+#[test]
+#[serial_test::serial]
+fn decode_jwt_expired_token() {
+    let secret = "mysecret";
+    let claims = Claims {
+        prompt: "expired prompt".to_string(),
+        exp: 1, // Expired long ago (Unix epoch)
+    };
+    let token = jsonwebtoken::encode(
+        &jsonwebtoken::Header::default(),
+        &claims,
+        &jsonwebtoken::EncodingKey::from_secret(secret.as_bytes()),
+    )
+    .unwrap();
+    let result = decode_jwt(&token, secret);
+    assert!(matches!(result, Err(Error::InvalidJWTCredentials(_))));
+}
+
 #[test]
 #[serial_test::serial]
 fn decode_jwt_valid_token() {
@@ -33,7 +67,7 @@ fn decode_jwt_invalid_token() {
 #[serial_test::serial]
 fn message_encrypted_variant_decrypts() {
     let secret = "testsecret";
-    unsafe { env::set_var("JWT_SECRET", secret) };
+    let _guard = JwtSecretGuard::set(secret);
     let claims = Claims {
         prompt: "encrypted prompt".to_string(),
         exp: 9999999999,
@@ -47,7 +81,6 @@ fn message_encrypted_variant_decrypts() {
     let msg = Message::Encrypted(token);
     let result: String = msg.try_into().unwrap();
     assert_eq!(result, "encrypted prompt");
-    unsafe { env::remove_var("JWT_SECRET") };
 }
 
 #[test]
@@ -59,5 +92,5 @@ fn message_encrypted_variant_no_secret() {
     assert_eq!(
         result.unwrap_err().to_string(),
         ApiError::from(Error::NoJWTSecretFound).to_string()
-    ); // NoJWTSecretFound maps to 500
+    );
 }
