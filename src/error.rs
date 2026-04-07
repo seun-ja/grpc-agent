@@ -26,7 +26,7 @@ pub enum Error {
     RpcError(#[from] tarpc::client::RpcError),
     /// Invalid JWT credentials: the JWT token is invalid or expired.
     #[error("invalid jwt credentials: {0}")]
-    InvalidJWTCredentials(String),
+    InvalidJWTCredentials(#[from] jsonwebtoken::errors::Error),
     /// No JWT secret found: the JWT secret is not configured.
     #[error("no jwt secret found")]
     NoJWTSecretFound,

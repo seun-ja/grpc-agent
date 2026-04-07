@@ -4,18 +4,28 @@ use crate::message::Message;
 use std::env;
 
 /// Guard to ensure JWT_SECRET is removed from the environment after test, even on panic.
-struct JwtSecretGuard;
-
+struct JwtSecretGuard {
+    previous: Option<String>,
+}
 impl JwtSecretGuard {
     fn set(secret: &str) -> Self {
+        let previous = env::var("JWT_SECRET").ok();
         unsafe { env::set_var("JWT_SECRET", secret) };
-        JwtSecretGuard
+        JwtSecretGuard { previous }
+    }
+
+    fn delete() -> Self {
+        let previous = env::var("JWT_SECRET").ok();
+        unsafe { env::remove_var("JWT_SECRET") };
+        JwtSecretGuard { previous }
     }
 }
-
 impl Drop for JwtSecretGuard {
     fn drop(&mut self) {
-        unsafe { env::remove_var("JWT_SECRET") };
+        match &self.previous {
+            Some(previous) => unsafe { env::set_var("JWT_SECRET", previous) },
+            None => unsafe { env::remove_var("JWT_SECRET") },
+        }
     }
 }
 
@@ -86,7 +96,7 @@ fn message_encrypted_variant_decrypts() {
 #[test]
 #[serial_test::serial]
 fn message_encrypted_variant_no_secret() {
-    unsafe { env::remove_var("JWT_SECRET") };
+    let _guard = JwtSecretGuard::delete();
     let msg = Message::Encrypted("sometoken".to_string());
     let result: Result<String, ApiError> = msg.try_into();
     assert_eq!(

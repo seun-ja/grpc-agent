@@ -14,7 +14,7 @@ pub(crate) fn decode_jwt(token: &str, hmac_secret: &str) -> Result<Claims, Error
         &validation,
     )
     .map(|data| data.claims)
-    .map_err(|e| Error::InvalidJWTCredentials(e.to_string()))
+    .map_err(Error::InvalidJWTCredentials)
 }
 
 /// JWT claims
