@@ -31,8 +31,8 @@
 //!
 //! ## Feature Flags
 //!
-//! **`tracing`**: Enables tracing for logging request/response traces. It requires a `RUST_LOG` environment variable to be set.
-
+//! `tracing`: Enables `tracing` instrumentation for request/response traces.
+//!
 mod agent;
 mod builder;
 pub mod error;

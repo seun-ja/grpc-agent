@@ -31,6 +31,9 @@ impl AgentServer {
         #[cfg(feature = "tracing")]
         tracing::info!("Listening on: {}", listener.local_addr());
 
+        #[cfg(not(feature = "tracing"))]
+        println!("Listening on: {}", listener.local_addr());
+
         listener
             .map_err(|e| eprintln!("{}", e)) // TODO: Improve error handling.
             .filter_map(|r| future::ready(r.ok()))
