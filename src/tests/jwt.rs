@@ -36,6 +36,7 @@ fn decode_jwt_expired_token() {
     let claims = Claims {
         prompt: "expired prompt".to_string(),
         exp: 1, // Expired long ago (Unix epoch)
+        iss: Some("test".to_string()),
     };
     let token = jsonwebtoken::encode(
         &jsonwebtoken::Header::default(),
@@ -54,6 +55,7 @@ fn decode_jwt_valid_token() {
     let claims = Claims {
         prompt: "test prompt".to_string(),
         exp: 9999999999,
+        iss: Some("test".to_string()),
     };
     let token = jsonwebtoken::encode(
         &jsonwebtoken::Header::default(),
@@ -81,6 +83,7 @@ fn message_encrypted_variant_decrypts() {
     let claims = Claims {
         prompt: "encrypted prompt".to_string(),
         exp: 9999999999,
+        iss: Some("test".to_string()),
     };
     let token = jsonwebtoken::encode(
         &jsonwebtoken::Header::default(),

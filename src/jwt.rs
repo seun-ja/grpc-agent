@@ -26,4 +26,6 @@ pub(crate) fn decode_jwt(token: &str, hmac_secret: &str) -> Result<Claims, Error
 pub(crate) struct Claims {
     pub prompt: String,
     pub exp: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub iss: Option<String>,
 }

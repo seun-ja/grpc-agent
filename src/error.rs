@@ -53,6 +53,12 @@ pub struct ApiError {
     message: String,
 }
 
+impl ApiError {
+    pub fn status_code(&self) -> u16 {
+        self.status
+    }
+}
+
 impl Display for ApiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}: {}", self.status, self.message)
