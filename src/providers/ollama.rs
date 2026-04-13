@@ -105,8 +105,11 @@ pub fn builder(
     temperature: Option<f64>,
     max_tokens: Option<u64>,
 ) -> Result<AgentBuilder<CompletionModel>, Error> {
-    let base_url =
-        std::env::var("OLLAMA_API_BASE_URL").unwrap_or("http://localhost:11434".to_string());
+    let base_url = std::env::var("OLLAMA_API_BASE_URL").unwrap_or_else(|_| {
+        #[cfg(feature = "tracing")]
+        tracing::warn!("OLLAMA_API_BASE_URL not set, using default: http://localhost:11434");
+        "http://localhost:11434".to_string()
+    });
 
     let ollama_client = Client::builder()
         .api_key(Nothing)
