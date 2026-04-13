@@ -2,7 +2,7 @@ use rig::{
     agent::{Agent, AgentBuilder, WithBuilderTools},
     client::{CompletionClient as _, Nothing},
     completion::Prompt as _,
-    providers::ollama::{self, CompletionModel},
+    providers::ollama::{Client, CompletionModel},
     tool::Tool,
 };
 use schemars::JsonSchema;
@@ -105,7 +105,13 @@ pub fn builder(
     temperature: Option<f64>,
     max_tokens: Option<u64>,
 ) -> Result<AgentBuilder<CompletionModel>, Error> {
-    let ollama_client = ollama::Client::new(Nothing)?;
+    let base_url =
+        std::env::var("OLLAMA_API_BASE_URL").unwrap_or("http://localhost:11434".to_string());
+
+    let ollama_client = Client::builder()
+        .api_key(Nothing)
+        .base_url(&base_url)
+        .build()?;
 
     let builder = ollama_client
         .agent(model)
